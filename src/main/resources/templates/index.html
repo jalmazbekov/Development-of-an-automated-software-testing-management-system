@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>TestFlow | Автоматизированная система тестирования</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: #F0F0F0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header & Footer - синий #030e1a */
+        header, footer {
+            background: #030e1a;
+            color: white;
+            padding: 1.2rem 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .logo i { color: #4c9aff; margin-right: 8px; }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #ccc;
+            text-decoration: none;
+            margin-left: 1.8rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+        }
+        nav a i { margin-right: 8px; }
+        nav a:hover, nav a.active {
+            color: white;
+            border-bottom-color: #4c9aff;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: 1rem;
+        }
+        .user-info span {
+            color: white;
+            font-size: 0.9rem;
+        }
+        .user-info a {
+            color: #ccc;
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+            border-bottom: none;
+        }
+        .user-info a:hover {
+            color: white;
+        }
+        .role-badge {
+            background: #4c9aff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            width: 100%;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: auto;
+        }
+
+        /* Анимации */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        @keyframes fadeScale {
+            from { opacity: 0; transform: scale(0.95);}
+            to { opacity: 1; transform: scale(1);}
+        }
+        .animate-slide { animation: slideUp 0.6s ease-out; }
+        .animate-fade-up { animation: slideUp 0.5s ease-out forwards; opacity: 0; animation-fill-mode: forwards; }
+        .animate-scale { animation: fadeScale 0.5s ease-out; }
+
+        /* Карточки статистики */
+        .stat-card {
+            background: white;
+            border-radius: 28px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.15);
+        }
+        .stat-card i {
+            font-size: 2.2rem;
+            color: #030e1a;
+            margin-bottom: 0.5rem;
+        }
+        .stat-card h3 { font-size: 1rem; font-weight: 500; color: #4b5563; margin-bottom: 0.5rem; }
+        .stat-card p { font-size: 2rem; font-weight: 700; color: #030e1a; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        /* Стеклянная карточка */
+        .glass-card {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(2px);
+            border-radius: 28px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Список тестов */
+        .test-list {
+            margin-top: 1rem;
+        }
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        .test-item strong {
+            display: block;
+            font-size: 1rem;
+        }
+        .test-item small {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .highlight {
+            color: #030e1a;
+            font-weight: 700;
+            background: #e0e7ff;
+            padding: 0 4px;
+            border-radius: 8px;
+        }
+
+        /* Кнопки */
+        .btn-take {
+            background: #4c9aff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-take:hover {
+            background: #3a7bc8;
+            transform: translateX(5px);
+        }
+
+        .btn-primary {
+            background: #030e1a;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            background: #1a2a3a;
+            transform: translateY(-2px);
+        }
+
+        .loading, .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+        .empty-state a {
+            color: #4c9aff;
+            text-decoration: none;
+        }
+
+        .welcome-message {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 700px) {
+            header { flex-direction: column; gap: 1rem; }
+            nav { justify-content: center; }
+            nav a { margin: 0 0.8rem; }
+            .user-info { margin-left: 0; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .test-item { flex-direction: column; gap: 0.5rem; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo"><i class="fas fa-brain"></i> TestFlow</div>
+    <nav>
+        <a href="/" class="active"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="/tests"><i class="fas fa-list-check"></i> Tests</a>
+        <a sec:authorize="hasRole('TEACHER')" href="/create-test"><i class="fas fa-plus-circle"></i> Create</a>
+        <a href="/results"><i class="fas fa-chart-simple"></i> Results</a>
+    </nav>
+    <div class="user-info" sec:authorize="isAuthenticated()">
+        <span><i class="fas fa-user-circle"></i> <span sec:authentication="name"></span></span>
+        <span class="role-badge" sec:authorize="hasRole('TEACHER')">Преподаватель</span>
+        <span class="role-badge" sec:authorize="hasRole('STUDENT')">Студент</span>
+        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Выход</a>
+    </div>
+</header>
+
+<main class="dashboard">
+    <div class="welcome-message animate-slide">
+        <h1>Автоматизированная система <span class="highlight">тестирования ПО</span></h1>
+        <p style="margin-top: 0.5rem; color: #4b5563;">
+            <span sec:authorize="isAuthenticated()">
+                Добро пожаловать, <strong sec:authentication="name"></strong>!
+            </span>
+            <span sec:authorize="!isAuthenticated()">
+                <a href="/login" style="color: #4c9aff;">Войдите</a> в систему для прохождения тестов
+            </span>
+        </p>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card animate-fade-up">
+            <i class="fas fa-file-alt"></i>
+            <h3>Всего тестов</h3>
+            <p id="totalTests">--</p>
+        </div>
+        <div class="stat-card animate-fade-up" style="animation-delay:0.1s">
+            <i class="fas fa-users"></i>
+            <h3>Участников</h3>
+            <p id="totalParticipants">--</p>
+        </div>
+        <div class="stat-card animate-fade-up" style="animation-delay:0.2s">
+            <i class="fas fa-chart-line"></i>
+            <h3>Средний балл</h3>
+            <p id="avgScore">--</p>
+        </div>
+    </div>
+
+    <div class="recent-tests glass-card animate-scale">
+        <h2><i class="fas fa-clock"></i> Доступные тесты</h2>
+        <div id="testsList" class="test-list">
+            <div class="loading">Загрузка тестов...</div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 TestFlow — Дипломная работа | Автоматизированная система управления тестированием ПО</p>
+    <p>Разработано с <i class="fas fa-heart"></i> для защиты диплома</p>
+</footer>
+
+<script>
+    // Загрузка статистики
+    fetch('/api/stats')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('totalTests').textContent = data.totalTests || 0;
+            document.getElementById('totalParticipants').textContent = data.totalParticipants || 0;
+            document.getElementById('avgScore').textContent = (data.avgScore || 0) + '%';
+        })
+        .catch(() => {
+            document.getElementById('totalTests').textContent = '0';
+            document.getElementById('totalParticipants').textContent = '0';
+            document.getElementById('avgScore').textContent = '0%';
+        });
+
+    // Загрузка тестов
+    fetch('/api/tests')
+        .then(res => res.json())
+        .then(tests => {
+            const container = document.getElementById('testsList');
+            if (!tests || tests.length === 0) {
+                container.innerHTML = '<div class="empty-state">Нет тестов. <a href="/create-test">Создайте первый тест →</a></div>';
+                return;
+            }
+            container.innerHTML = tests.map(test => `
+                <div class="test-item">
+                    <div>
+                        <strong><i class="fas fa-file-alt"></i> ${escapeHtml(test.title)}</strong>
+                        <small>${escapeHtml(test.description) || 'Нет описания'} • ${test.questions?.length || 0} вопросов</small>
+                    </div>
+                    <a href="/take-test/${test.id}" class="btn-take">Пройти тест →</a>
+                </div>
+            `).join('');
+        })
+        .catch(() => {
+            document.getElementById('testsList').innerHTML = '<div class="empty-state">Ошибка загрузки тестов. Убедитесь, что сервер запущен.</div>';
+        });
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+</script>
+</body>
+</html>

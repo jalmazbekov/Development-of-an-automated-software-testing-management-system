@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Прохождение теста | TestFlow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: #F0F0F0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header, footer {
+            background: #030e1a;
+            color: white;
+            padding: 1.2rem 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .logo i { color: #4c9aff; margin-right: 8px; }
+
+        nav a {
+            color: #ccc;
+            text-decoration: none;
+            margin-left: 1.8rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+        }
+        nav a i { margin-right: 8px; }
+        nav a:hover {
+            color: white;
+            border-bottom-color: #4c9aff;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .user-info span {
+            color: white;
+            font-size: 0.9rem;
+        }
+        .user-info a {
+            color: #ccc;
+            text-decoration: none;
+        }
+        .user-info a:hover {
+            color: white;
+        }
+        .role-badge {
+            background: #4c9aff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        main {
+            flex: 1;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            width: 100%;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: auto;
+        }
+
+        .glass-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 28px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .test-progress {
+            margin-bottom: 1.5rem;
+        }
+        .test-progress span {
+            font-weight: 600;
+            color: #030e1a;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #4c9aff;
+            transition: width 0.3s;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #030e1a;
+        }
+
+        .question-text-large {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 16px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option.selected {
+            border-color: #4c9aff;
+            background: #eff6ff;
+        }
+        .option:hover {
+            border-color: #4c9aff;
+        }
+        .option input {
+            margin-right: 0.75rem;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .option span {
+            cursor: pointer;
+        }
+
+        .test-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .btn-primary, .btn-secondary, .btn-success {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #4c9aff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3a7bc8;
+            transform: translateX(5px);
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #030e1a;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        .btn-login {
+            background: #4c9aff;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .loading, .error, .login-prompt {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        .error {
+            color: #dc2626;
+        }
+        .login-prompt i {
+            font-size: 3rem;
+            color: #4c9aff;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 700px) {
+            header { flex-direction: column; gap: 1rem; }
+            nav a { margin: 0 0.8rem; }
+            .glass-card { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo"><i class="fas fa-brain"></i> TestFlow</div>
+    <nav>
+        <a href="/"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="/tests"><i class="fas fa-list-check"></i> Tests</a>
+        <a href="/results"><i class="fas fa-chart-simple"></i> Results</a>
+    </nav>
+    <div class="user-info" sec:authorize="isAuthenticated()">
+        <span><i class="fas fa-user-circle"></i> <span sec:authentication="name"></span></span>
+        <span class="role-badge" sec:authorize="hasRole('TEACHER')">Преподаватель</span>
+        <span class="role-badge" sec:authorize="hasRole('STUDENT')">Студент</span>
+        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Выход</a>
+    </div>
+</header>
+
+<main>
+    <div id="testContainer" class="glass-card">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Загрузка теста...</div>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 TestFlow — Дипломная работа | Автоматизированная система управления тестированием ПО</p>
+</footer>
+
+<script>
+    const testId = window.location.pathname.split('/').pop();
+    let testData = null;
+    let currentQuestion = 0;
+    let answers = [];
+
+    // Проверяем, авторизован ли пользователь (через мета-тег или наличие элемента user-info)
+    function isAuthenticated() {
+        // Простая проверка: если есть элемент с классом user-info и он содержит span с именем
+        const userInfo = document.querySelector('.user-info span');
+        return userInfo !== null && userInfo.innerText.trim() !== '';
+    }
+
+    async function loadTest() {
+        try {
+            const response = await fetch(`/api/tests/${testId}`);
+
+            if (!response.ok) {
+                throw new Error('Тест не найден');
+            }
+
+            testData = await response.json();
+
+            if (testData && testData.questions && testData.questions.length > 0) {
+                answers = new Array(testData.questions.length).fill(null);
+                showQuestion();
+            } else {
+                document.getElementById('testContainer').innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        Тест не найден или не содержит вопросов
+                    </div>
+                `;
+            }
+        } catch (error) {
+            document.getElementById('testContainer').innerHTML = `
+                <div class="error">
+                    <i class="fas fa-exclamation-triangle"></i><br>
+                    Ошибка загрузки теста. Убедитесь, что тест существует.
+                </div>
+            `;
+        }
+    }
+
+    function showQuestion() {
+        const q = testData.questions[currentQuestion];
+        const container = document.getElementById('testContainer');
+        container.innerHTML = `
+            <div class="test-progress">
+                <span><i class="fas fa-question-circle"></i> Вопрос ${currentQuestion + 1} из ${testData.questions.length}</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${(currentQuestion + 1) / testData.questions.length * 100}%"></div>
+                </div>
+            </div>
+            <h2><i class="fas fa-file-alt"></i> ${escapeHtml(testData.title)}</h2>
+            <div class="question-text-large">${escapeHtml(q.text)}</div>
+            <div class="options-list">
+                ${['A', 'B', 'C', 'D'].map(opt => `
+                    <label class="option ${answers[currentQuestion] === opt ? 'selected' : ''}">
+                        <input type="radio" name="answer" value="${opt}" ${answers[currentQuestion] === opt ? 'checked' : ''}>
+                        <span><strong>${opt}.</strong> ${escapeHtml(q[`option${opt}`])}</span>
+                    </label>
+                `).join('')}
+            </div>
+            <div class="test-nav">
+                ${currentQuestion > 0 ? '<button class="btn-secondary" onclick="prevQuestion()"><i class="fas fa-arrow-left"></i> Назад</button>' : '<div></div>'}
+                ${currentQuestion < testData.questions.length - 1 ?
+            '<button class="btn-primary" onclick="nextQuestion()">Далее <i class="fas fa-arrow-right"></i></button>' :
+            '<button class="btn-success" onclick="submitTest()"><i class="fas fa-check"></i> Завершить тест</button>'}
+            </div>
+        `;
+
+        document.querySelectorAll('input[name="answer"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                answers[currentQuestion] = e.target.value;
+            });
+        });
+    }
+
+    function nextQuestion() {
+        if (currentQuestion < testData.questions.length - 1) {
+            currentQuestion++;
+            showQuestion();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestion > 0) {
+            currentQuestion--;
+            showQuestion();
+        }
+    }
+
+    async function submitTest() {
+        // Проверяем авторизацию перед сохранением результата
+        if (!isAuthenticated()) {
+            document.getElementById('testContainer').innerHTML = `
+                <div class="login-prompt">
+                    <i class="fas fa-lock"></i>
+                    <h3>Требуется авторизация</h3>
+                    <p>Для сохранения результата необходимо войти в систему.</p>
+                    <a href="/login" class="btn-login"><i class="fas fa-sign-in-alt"></i> Войти</a>
+                    <br><br>
+                    <a href="/tests" style="color: #4c9aff;">← Вернуться к списку тестов</a>
+                </div>
+            `;
+            return;
+        }
+
+        let score = 0;
+        testData.questions.forEach((q, idx) => {
+            if (answers[idx] === q.correctAnswer) score++;
+        });
+
+        const userName = document.querySelector('.user-info span')?.innerText || 'Anonymous';
+
+        const result = {
+            userName: userName,
+            testId: testData.id,
+            testTitle: testData.title,
+            score: score,
+            total: testData.questions.length
+        };
+
+        try {
+            await fetch('/api/results', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(result)
+            });
+
+            const percent = Math.round(score / testData.questions.length * 100);
+            alert(`Результат: ${score} из ${testData.questions.length} (${percent}%)\n${percent >= 70 ? 'Поздравляем! Тест пройден!' : 'Попробуйте еще раз!'}`);
+            window.location.href = '/results';
+        } catch (error) {
+            alert('Ошибка при сохранении результата. Попробуйте еще раз.');
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Загружаем тест в любом случае (даже без авторизации)
+    loadTest();
+</script>
+</body>
+</html>

@@ -3,9 +3,8 @@ WORKDIR /app
 COPY . .
 RUN gradle build -x test
 
-# Используем проверенный тег eclipse-temurin:21-jdk
-FROM eclipse-temurin:21-jdk
+FROM amazoncorretto:21-alpine
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]jar", "app.jar"]
